@@ -1,0 +1,111 @@
+<mat-toolbar class="logoheader">
+  <span><img src="assets\images\logo.png" class="creativelogo" (click)="onLogoClick()"></span>
+  <span class="header-spacer"></span>
+  <span class="headerbtn">
+    <button mat-flat-button class="approvedbtn" matBadgeColor="warn" matBadgePosition="before"
+      [matBadge]="countmessages" [matBadgeHidden]="showcountmessages || countmessages == 0"
+      (click)="openApprovedMessageDialog()" matTooltip="Odobrite prijedloge"
+      *ngIf="getEmail == 'jovicic.djordje@outlook.com'">Odobrite prijedloge</button>
+    <button mat-flat-button (click)="logout()" matTooltip="Odjavite se" class="logoutbtn"> Odjavite se</button>
+  </span>
+</mat-toolbar>
+
+<div class="messagebtn">
+  <button mat-mini-fab color="white" (click)="openDialog()" class="addbtn" matTooltip="Ostavite prijedlog">
+    <mat-icon class="addicon">add</mat-icon>
+  </button>
+</div>
+<div class="search">
+  <mat-form-field class="search-full-width ">
+    <mat-icon matPrefix class="searchicon">search</mat-icon>
+    <input matInput placeholder="Pretraga" [(ngModel)]="searchText" autocomplete="off">
+    <button mat-button *ngIf="searchText" matSuffix mat-icon-button aria-label="Clear" (click)="searchText=''"
+      matTooltip="Obriši">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+</div>
+
+<mat-tab-group animationDuration="0ms">
+  <mat-tab label="Tenderi">
+    <div class="portalcontent">
+      <span *ngFor="let message of service.messages | filter:searchText" class="dialogmessage">
+        <mat-card class="message-card" *ngIf="message.IsApproved == true && message.Group == 'tenderi'">
+          <div class="email">
+            <mat-icon class="accounticon">account_circle</mat-icon>{{message.Email}}
+          </div>
+          <mat-card-content>
+            <div class="messagetext">
+              <mat-card>
+                <p class="limitedText">{{message.TextMessage}}</p>
+              </mat-card>
+            </div>
+            <p>{{message.CurrentDate | date:'HH:mm   dd.MM.yyyy.'}}</p>
+            <mat-card-actions>
+              <div class="allowbtn" *ngIf="getEmail == 'jovicic.djordje@outlook.com'">
+                <button mat-button color="warn"
+                  (click)="onDelete(message.MessageId, message.TextMessage, message.Email, message.Group)"
+                  matTooltip="Odbacite prijedlog">
+                  <mat-icon aria-hidden="false" aria-label=" ">clear</mat-icon>
+                </button>
+              </div>
+              <div class="commentbtn">
+                <button type="button" mat-mini-fab color="white" (click)="openCommentDialog(message.MessageId)"
+                  matTooltip="Ostavite komentar">
+                  <mat-icon class="commenticon">comment</mat-icon>
+                </button>
+              </div>
+            </mat-card-actions>
+          </mat-card-content>
+        </mat-card>
+      </span>
+    </div>
+  </mat-tab>
+  <mat-tab label="Razno">
+    <span *ngFor="let message of service.messages | filter:searchText">
+      <mat-card class="message-card" *ngIf="message.IsApproved == true && message.Group == 'razno'">
+        <div class="email">
+          <mat-icon class="accounticon">account_circle</mat-icon>{{message.Email}}
+        </div>
+        <mat-card-content>
+          <div class="messagetext">
+            <mat-card>
+              <p class="limitedText">{{message.TextMessage}}</p>
+            </mat-card>
+          </div>
+          <p>{{message.CurrentDate | date:'HH:mm   dd.MM.yyyy.'}}</p>
+          <mat-card-actions>
+            <div class="allowbtn" *ngIf="getEmail == 'jovicic.djordje@outlook.com'">
+              <button mat-button color="warn"
+                (click)="onDelete(message.MessageId, message.TextMessage, message.Email, message.Group)"
+                matTooltip="Odbacite prijedlog">
+                <mat-icon aria-hidden="false" aria-label=" ">clear</mat-icon>
+              </button>
+            </div>
+            <div class="commentbtn">
+              <button type="button" mat-mini-fab color="white" (click)="openCommentDialog(message.MessageId)"
+                matTooltip="Ostavite komentar">
+                <mat-icon class="commenticon">comment</mat-icon>
+              </button>
+            </div>
+          </mat-card-actions>
+        </mat-card-content>
+      </mat-card>
+    </span>
+  </mat-tab>
+  <mat-tab label="Aktivnosti" *ngIf="getEmail == 'jovicic.djordje@outlook.com'">
+    <span *ngFor="let message of service.messages | filter:searchText" class="deletedmessages">
+      <mat-list *ngIf="message.IsDeleted == true">
+        <mat-list-item>
+          {{getEmail}} je obrisao prijedlog korisnika {{message.Email}}
+          <span class="header-spacer"></span>
+          <button mat-button class="restorebtn" matTooltip="Vrati prijedlog"
+            (click)="onRestore(message.MessageId, message.TextMessage, message.Email, message.Group)">
+            <mat-icon aria-hidden="false" aria-label=" ">restore_from_trash</mat-icon>
+          </button>
+        </mat-list-item>
+        <mat-divider class="spaceitem"></mat-divider>
+      </mat-list>
+    </span>
+  </mat-tab>
+</mat-tab-group>

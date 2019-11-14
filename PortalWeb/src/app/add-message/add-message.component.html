@@ -1,0 +1,27 @@
+<div class="close">
+  <button mat-raised-button (click)="closeClick()">
+    <mat-icon id="close-icon">close</mat-icon>
+  </button>
+</div>
+<form [formGroup]="messageForm" (ngSubmit)="onSubmit()" class="example-form ">
+  <mat-form-field class="selectedgroup">
+    <mat-label>Izaberite grupu</mat-label>
+    <mat-select name="Group" matSelect formControlName="Group" required>
+      <mat-option value="tenderi">Tenderi</mat-option>
+      <mat-option value="razno">Razno</mat-option>
+    </mat-select>
+    <mat-error *ngIf="messageForm.invalid">*Polje je obavezno</mat-error>
+  </mat-form-field>
+  <mat-card class="messagecontet">
+    <mat-form-field class="message-full-width">
+      <textarea matInput name="TextMessage" formControlName="TextMessage" placeholder="Ostavite prijedlog"
+        [matTextareaAutosize] required></textarea>
+      <div class="sendmessagebtn">
+        <button mat-mini-fab color="white" matTooltip="Pošalji" type="submit">
+          <mat-icon aria-hidden="false" aria-label=" " class="sendicon">send</mat-icon>
+        </button>
+      </div>
+      <mat-error *ngIf="messageForm.invalid">*Polje je obavezno</mat-error>
+    </mat-form-field>
+  </mat-card>
+</form>

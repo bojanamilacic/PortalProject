@@ -1,0 +1,107 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WebApplication1.Models;
+
+namespace WebApplication1.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class MessagesController : ControllerBase
+    {
+        private readonly MessageContext _context;
+
+        public MessagesController(MessageContext context)
+        {
+            _context = context;
+        }
+
+        // GET: api/Messages
+         
+        [HttpGet]
+        public async Task<ActionResult<IList<Message>>> GetMessage()
+        {
+            return await _context.Message.OrderByDescending(p => p.MessageId).Include(x=> x.ListOfComments).ToListAsync();
+            
+            
+        }
+    // GET: api/Messages/5
+    [HttpGet("notapprovedmessagescount")]
+        public IActionResult GetNotApprovedMessageCount()
+        {
+            var message = _context.Message.Where(x => x.IsApproved == false && x.IsDeleted == false).Count();
+
+            if (message == null)
+            {
+                return NotFound();
+            }
+            return Ok(message);
+        }
+
+        // PUT: api/Messages/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutMessage(int id, Message message)
+        {
+            if (id != message.MessageId)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(message).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!MessageExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return Ok();
+        }
+
+        // POST: api/Messages
+        [HttpPost]
+        public async Task<ActionResult<Message>> PostMessage(Message message)
+        {
+            _context.Message.Add(message);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetMessage", new { id = message.MessageId }, message);
+        }
+
+        // DELETE: api/Messages/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Message>> DeleteMessage(int id)
+        {
+            var message = await _context.Message.Include(x => x.ListOfComments).FirstAsync(x=>x.MessageId==id);
+            if (message == null)
+            {
+                return NotFound();
+            }
+            message.ListOfComments.Clear();
+            
+            _context.Message.Remove(message);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        private bool MessageExists(int id)
+        {
+            return _context.Message.Any(e => e.MessageId == id);
+        }
+    }
+}
